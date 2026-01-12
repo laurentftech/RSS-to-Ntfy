@@ -82,6 +82,35 @@ NTFY_TOKEN=tk_your_access_token_here
 
 **Note:** The token is only required if your Ntfy server/channel requires authentication. For public channels on ntfy.sh, you can omit the `NTFY_TOKEN` variable.
 
+#### Setting up ACL permissions (for self-hosted Ntfy servers):
+
+After creating a token, you need to grant the user write permissions on your topic:
+
+```bash
+# Grant write-only access to a specific topic
+docker exec -it ntfy ntfy access rssbot your-channel write
+
+# Or grant read-write access
+docker exec -it ntfy ntfy access rssbot your-channel rw
+
+# Or grant access to all topics (wildcard)
+docker exec -it ntfy ntfy access rssbot "*" write
+
+# Verify permissions
+docker exec -it ntfy ntfy user list
+```
+
+You should see:
+```
+user rssbot (role: user, tier: none)
+- write-only access to topic your-channel
+```
+
+**Common ACL issues:**
+- **403 Forbidden errors**: The user doesn't have write permissions on the topic
+- **Token created but no permissions**: Creating a token with `ntfy token add` doesn't automatically grant topic access - you must explicitly use `ntfy access` to grant permissions
+- **Case sensitivity**: Topic names are case-sensitive (`MyTopic` ≠ `mytopic`)
+
 ### 2. Run the script
 ```
 python3 ./rss-to-ntfy.py
