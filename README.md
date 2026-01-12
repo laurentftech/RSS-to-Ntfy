@@ -16,7 +16,7 @@ A simple python based script that monitors RSS feeds and sends new posts as noti
 
 
 ## Requirements
-- Python 3.7+
+- Python 3.7+ (or Docker)
 - RSS feed URL (e.g.: FreshRSS instance)
 - Ntfy channel
 
@@ -122,6 +122,45 @@ python3 ./rss-to-ntfy.py
       */5 * * * * /path/to/your/project/run_rss_notifier.sh >> /path/to/your/project/cron.log 2>&1
       ```
 
+## Docker Usage
+
+### Using Docker Compose (Recommended)
+
+1. Create a `.env` file with your configuration (see Configuration Options below)
+
+2. Add to your `docker-compose.yml`:
+```yaml
+services:
+  rss-to-ntfy:
+    build: ./RSS-to-Ntfy
+    container_name: rss-to-ntfy
+    restart: unless-stopped
+    volumes:
+      - ./state:/app/state
+    env_file:
+      - .env
+```
+
+3. Start the service:
+```bash
+docker-compose up -d rss-to-ntfy
+```
+
+### Using Docker CLI
+
+```bash
+# Build the image
+docker build -t rss-to-ntfy .
+
+# Run the container
+docker run -d \
+  --name rss-to-ntfy \
+  --restart unless-stopped \
+  -v $(pwd)/state:/app/state \
+  --env-file .env \
+  rss-to-ntfy
+```
+
 ## Configuration Options
 The script can be configured through environment variables or by modifying the `Config` class:
 
@@ -130,6 +169,7 @@ The script can be configured through environment variables or by modifying the `
 | RSS_URL | Your RSS feed URL | None |
 | NTFY_CHANNEL | Your Ntfy channel URL | None |
 | NTFY_TOKEN | Authentication token for private ntfy servers (optional) | None |
+| POLL_INTERVAL | Interval in seconds between RSS feed checks | 300 (5 min) |
 | MAX_DESCRIPTION_LENGTH | Maximum length for truncated descriptions | 250 |
 | REQUEST_TIMEOUT | Timeout for HTTP requests (seconds) | 10 |
 | RETRY_ATTEMPTS | Number of retry attempts for failed notifications | 3 |
