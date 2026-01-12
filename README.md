@@ -6,6 +6,7 @@ A simple python based script that monitors RSS feeds and sends new posts as noti
 ## 🌟 Features
 - 🔄 Real-time RSS feed monitoring
 - 📱 Push notifications via Ntfy
+- 🔐 Authentication support for private Ntfy servers
 - 🖼️ Image attachment support
 - 🏷️ Tag handling
 - 📝 Smart description truncation
@@ -38,18 +39,55 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-1. Configure your environment variables in the `.env` file 
-```
+
+### 1. Configure Environment Variables
+
+Create a `.env` file in the project directory with the following variables:
+
+**For public Ntfy servers (ntfy.sh):**
+```bash
 RSS_URL=https://your-freshrss-instance/api/feed.php
 NTFY_CHANNEL=https://ntfy.sh/your-channel
 ```
 
-2. Run the script
+**For private/self-hosted Ntfy servers:**
+```bash
+RSS_URL=https://your-freshrss-instance/api/feed.php
+NTFY_CHANNEL=https://your-ntfy-server.com/your-channel
+NTFY_TOKEN=tk_your_access_token_here
+```
+
+#### How to get a Ntfy access token:
+
+1. **Using the Ntfy CLI (recommended):**
+   ```bash
+   ntfy token add rssbot --topic your-channel --write
+   ```
+   This creates a token named "rssbot" with write permissions for your channel. The command will output the token that starts with `tk_`.
+
+2. **Using the Ntfy web interface:**
+   - Go to your Ntfy server (e.g., `https://your-ntfy-server.com`)
+   - Click on "Account" or the user icon
+   - Navigate to "Access Tokens"
+   - Click "Create access token"
+   - Give it a name (e.g., "RSS-to-Ntfy")
+   - Select the topic/channel and grant write permissions
+   - Copy the generated token (starts with `tk_`)
+
+3. **Using curl (API):**
+   ```bash
+   curl -u username:password https://your-ntfy-server.com/v1/account/token \
+     -d '{"label":"RSS-to-Ntfy","expires":0}'
+   ```
+
+**Note:** The token is only required if your Ntfy server/channel requires authentication. For public channels on ntfy.sh, you can omit the `NTFY_TOKEN` variable.
+
+### 2. Run the script
 ```
 python3 ./rss-to-ntfy.py
 ```
 
-3. (Optional) Set up as a scheduled task
+### 3. (Optional) Set up as a scheduled task
    - If you are not using a virtual environment:
      ```
      */5 * * * * /path/to/python /path/to/rss-to-ntfy.py
@@ -91,6 +129,7 @@ The script can be configured through environment variables or by modifying the `
 |-----------|-------------|---------|
 | RSS_URL | Your RSS feed URL | None |
 | NTFY_CHANNEL | Your Ntfy channel URL | None |
+| NTFY_TOKEN | Authentication token for private ntfy servers (optional) | None |
 | MAX_DESCRIPTION_LENGTH | Maximum length for truncated descriptions | 250 |
 | REQUEST_TIMEOUT | Timeout for HTTP requests (seconds) | 10 |
 | RETRY_ATTEMPTS | Number of retry attempts for failed notifications | 3 |

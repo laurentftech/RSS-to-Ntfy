@@ -28,6 +28,7 @@ load_dotenv()
 class Config:
     RSS_URL = os.getenv('RSS_URL', 'https://freshrss.example.com/api/query.php')
     NTFY_CHANNEL = os.getenv('NTFY_CHANNEL', 'https://ntfy.example.com/channel')
+    NTFY_TOKEN = os.getenv('NTFY_TOKEN')  # Optional: for private ntfy servers
     MAX_DESCRIPTION_LENGTH = 250
     REQUEST_TIMEOUT = 10
     RETRY_ATTEMPTS = 3
@@ -134,14 +135,18 @@ class NotificationSender:
 
         clean_link = link.rstrip('/')
         message = f"{description}\n\nRead more: {clean_link}\n\nTags: {tags}"
-        
+
         headers = {
             "Title": sanitized_title,
             "Click": clean_link,
             "X-Priority": "5",
             "Tags": "rss"
         }
-        
+
+        # Add authentication token if configured (for private ntfy servers)
+        if Config.NTFY_TOKEN:
+            headers["Authorization"] = f"Bearer {Config.NTFY_TOKEN}"
+
         if image_url and URLValidator.is_valid_url(image_url):
             headers["Attach"] = image_url
 
