@@ -35,6 +35,12 @@ class Config:
     RETRY_DELAY = 2
     MAX_ENTRIES = 50
 
+# Debug: Log token presence (not the actual token for security)
+if Config.NTFY_TOKEN:
+    logger.info(f"NTFY_TOKEN is configured (starts with: {Config.NTFY_TOKEN[:5]}...)")
+else:
+    logger.info("NTFY_TOKEN is not configured - using public channel")
+
 # Get the directory of the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 LAST_SEEN_FILE = os.path.join(script_dir, "last_seen.txt")
@@ -146,6 +152,7 @@ class NotificationSender:
         # Add authentication token if configured (for private ntfy servers)
         if Config.NTFY_TOKEN:
             headers["Authorization"] = f"Bearer {Config.NTFY_TOKEN}"
+            logger.debug(f"Using authentication with token (starts with: {Config.NTFY_TOKEN[:5]}...)")
 
         if image_url and URLValidator.is_valid_url(image_url):
             headers["Attach"] = image_url
