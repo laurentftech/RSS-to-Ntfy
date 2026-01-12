@@ -29,6 +29,7 @@ class Config:
     RSS_URL = os.getenv('RSS_URL', 'https://freshrss.example.com/api/query.php')
     NTFY_CHANNEL = os.getenv('NTFY_CHANNEL', 'https://ntfy.example.com/channel')
     NTFY_TOKEN = os.getenv('NTFY_TOKEN')  # Optional: for private ntfy servers
+    POLL_INTERVAL = int(os.getenv('POLL_INTERVAL', '300'))  # Default: 5 minutes
     MAX_DESCRIPTION_LENGTH = 250
     REQUEST_TIMEOUT = 10
     RETRY_ATTEMPTS = 3
@@ -213,13 +214,17 @@ class RSSProcessor:
 
 def main():
     """Main execution function."""
-    logger.info("Starting RSS notification service")
-    try:
-        processor = RSSProcessor()
-        processor.process_feed()
-    except Exception as e:
-        logger.error(f"Main execution error: {e}")
-    logger.info("RSS notification service completed")
+    logger.info(f"Starting RSS notification service (polling every {Config.POLL_INTERVAL} seconds)")
+
+    while True:
+        try:
+            processor = RSSProcessor()
+            processor.process_feed()
+        except Exception as e:
+            logger.error(f"Error processing feed: {e}")
+
+        logger.info(f"Waiting {Config.POLL_INTERVAL} seconds before next check...")
+        time.sleep(Config.POLL_INTERVAL)
 
 if __name__ == "__main__":
     main()
