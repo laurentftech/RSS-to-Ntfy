@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+ENV/
+env/
+
+# Project specific
+.env
+*.log
+last_seen.txt
+state/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code documentation (local only)
+CLAUDE.md
